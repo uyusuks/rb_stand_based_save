@@ -1,5 +1,6 @@
 local ss = game:GetService("ServerStorage")
 local ts = game:GetService("TweenService")
+local ps = game:GetService("Players")
 local sss = game:GetService("ServerScriptService")
 
 local modules_folder = sss:WaitForChild("modules")
@@ -10,8 +11,6 @@ local tinfo_barrage = TweenInfo.new(1)
 
 local stands_folder = ss:WaitForChild("stands")
 
-local stand = {}
-
 local summon_cd_list = {}
 local summon_cd = 5
 
@@ -21,15 +20,21 @@ local barrage_cd = 5
 local fist_cd_list = {}
 local fist_cd = .1
 
-stand.default_summon = function(p, stand)
+local ts_cd_list = {}
+local ts_cd = 10
+local ts_t = 5
+
+local movement_save = {}
+
+local stand = {}
+
+stand.default_summon = function(p_id, ch, stand)
 	
-	local last_summon = summon_cd_list[p] or 0
+	local last_summon = summon_cd_list[p_id] or 0
 	
 	if  os.clock() - last_summon <= summon_cd then return end
 	
-	summon_cd_list[p] = os.clock()
-	
-	local ch = p.Character or p.CharacterAdded:Wait()
+	summon_cd_list[p_id] = os.clock()
 
 	local find_stand = stands_folder:FindFirstChild(stand)
 	
@@ -37,14 +42,14 @@ stand.default_summon = function(p, stand)
 	
 	local stand_folder = ch:WaitForChild(stand)
 	
-	local stand = workspace:WaitForChild(p.Name .. "_stand")
+	local stand = workspace:WaitForChild(p_id .. "_stand")
 	
 	local hrp = ch:WaitForChild("HumanoidRootPart")
 	local stand_hrp = stand:WaitForChild("HumanoidRootPart")
 	
 	local weld
 	
-	if hrp:FindFirstChild("stand_m6d") then
+	if hrp:FindFirstChild("stand_weld") then
 		
 		weld = hrp:WaitForChild("stand_weld")
 	else
@@ -60,16 +65,13 @@ stand.default_summon = function(p, stand)
 	
 	stand_hrp.Anchored = false
 	
-	for _, thing in pairs(stand:GetChildren()) do if thing:IsA("Part") then thing.Transparency = 0 end end
-	
 	local summon_tw = ts:Create(weld, tinfo_summon, {C1 = CFrame.new(-1.5, -1, -2.5)})
 	
 	summon_tw:Play()
 end
 
-stand.default_unsummon = function(p, stand)
-	
-	local ch = p.Character or p.CharacterAdded:Wait()
+stand.default_unsummon = function(p_id, ch)
+
 	local hrp = ch:WaitForChild("HumanoidRootPart")
 	
 	local weld = hrp:WaitForChild("stand_weld")
@@ -79,20 +81,17 @@ stand.default_unsummon = function(p, stand)
 	unsummon_tw:Play()
 	unsummon_tw.Completed:Wait()
 
-	local stand = workspace:WaitForChild(p.Name .. "_stand")
-	
-	for _, thing in pairs(stand:GetChildren()) do if thing:IsA("Part") then thing.Transparency = 1 end end
+	local stand = workspace:WaitForChild(p_id .. "_stand")
 end
 
-stand.default_barrage = function(p)
+stand.default_barrage = function(p_id, ch)
 	
-	local last_barrage = barrage_cd_list[p] or 0
+	local last_barrage = barrage_cd_list[p_id] or 0
 
 	if  os.clock() - last_barrage <= barrage_cd then return end
 
-	barrage_cd_list[p] = os.clock()
-	
-	local ch = p.Character or p.CharacterAdded:Wait()
+	barrage_cd_list[p_id] = os.clock()
+
 	local hrp = ch:WaitForChild("HumanoidRootPart")
 
 	local weld = hrp:WaitForChild("stand_weld")
@@ -105,7 +104,7 @@ stand.default_barrage = function(p)
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = {ch}
 	
-	local stand = workspace:WaitForChild(p.Name .. "_stand")
+	local stand = workspace:WaitForChild(p_id .. "_stand")
 	
 	local stand_hb = stand:WaitForChild("hitboxes")
 	
@@ -115,11 +114,11 @@ stand.default_barrage = function(p)
 		
 		if not hb.RaycastResult then return end
 		
-		local last_fist = fist_cd_list[p] or 0
+		local last_fist = fist_cd_list[p_id] or 0
 
 		if  os.clock() - last_fist <= fist_cd then return end
 
-		fist_cd_list[p] = os.clock()
+		fist_cd_list[p_id] = os.clock()
 
 		local hit_part = hb.RaycastResult.Instance
 		
@@ -141,6 +140,51 @@ stand.default_barrage = function(p)
 		
 		deault_tw:Play()
 	end)
+end
+
+stand.default_ts = function(ts_user, ch)
+    
+    local ts_user_id = ts_user.UserId
+
+    local last_ts = ts_cd_list[ts_user_id .. "_ts"] or 0
+
+    if os.clock() - last_ts <= 3 then return end
+
+    local last_ts = os.clock()
+
+    for _, p in pairs(ps:GetChildren()) do
+       
+        if p == ts_user then continue end
+
+        local ch = p.Character or p.CharacterAdded:Wait()
+
+        local hrp = ch:WaitForChild("HumanoidRootPart")
+        local hmd = ch:WaitForChild("Humanoid")
+        
+        local p_id = p.UserId
+
+        movement_save[p_id .. "_ws"] = hmd.WalkSpeed
+
+        hmd.WalkSpeed = 0
+        hrp.Anchored = true
+    end
+
+    task.wait(ts_t)
+
+        for _, p in pairs(ps:GetChildren()) do
+       
+        if p == ts_user then continue end
+
+        local ch = p.Character or p.CharacterAdded:Wait()
+
+        local hrp = ch:WaitForChild("HumanoidRootPart")
+        local hmd = ch:WaitForChild("Humanoid")
+        
+        local p_id = p.UserId
+
+        hmd.WalkSpeed =  movement_save[p_id .. "_ws"]
+        hrp.Anchored = false
+    end
 end
 
 return stand
