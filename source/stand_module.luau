@@ -32,7 +32,7 @@ type default_type = (boolean, Model) -> ()
 
 type action = {
 	
-	default_summon: (boolean, Model, Model) -> (),
+	default_summon: (boolean, Model, Model?) -> (),
 	default_unsummon: default_type,
 	default_barrage: default_type,
 	default_ts: (Player, Model) -> ()
