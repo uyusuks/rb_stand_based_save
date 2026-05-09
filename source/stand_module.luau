@@ -28,9 +28,9 @@ local movement_save = {}
 
 local stand = {}
 
-type default_type = (boolean, Model) -> ()
+export type default_type = (boolean, Model) -> ()
 
-type action = {
+export type action = {
 	
 	default_summon: (boolean, Model, Model?) -> (),
 	default_unsummon: default_type,
