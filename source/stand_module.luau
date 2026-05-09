@@ -1,3 +1,5 @@
+--!nonstrict
+
 local ss: ServerStorage = game:GetService("ServerStorage")
 local ts: TweenService = game:GetService("TweenService")
 local ps: Players = game:GetService("Players")
