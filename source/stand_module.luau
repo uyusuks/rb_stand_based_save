@@ -100,7 +100,7 @@ end
 
 stand.action.default_barrage = function(p_id: number, ch: Model)
 
-	local last_barrage:number = barrage_cd_list[p_id] or 0
+	local last_barrage: number = barrage_cd_list[p_id] or 0
 
 	if  os.clock() - last_barrage <= barrage_cd then return end
 
@@ -128,7 +128,7 @@ stand.action.default_barrage = function(p_id: number, ch: Model)
 
 		if not hb.RaycastResult then return end
 
-		local last_fist:number = fist_cd_list[p_id] or 0
+		local last_fist: number = fist_cd_list[p_id] or 0
 
 		if  os.clock() - last_fist <= fist_cd then return end
 
@@ -156,7 +156,7 @@ stand.action.default_barrage = function(p_id: number, ch: Model)
 	end)
 end
 
-stand.action.default_ts = function(ts_user: Player, ch:Model)
+stand.action.default_ts = function(ts_user: Player, ch: Model)
 
 --didnt complete
 end
