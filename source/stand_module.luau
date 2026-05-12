@@ -1,4 +1,4 @@
---!nonstrict
+--!strict
 
 local ss = game:GetService("ServerStorage") :: ServerStorage
 local ts = game:GetService("TweenService") :: TweenService
