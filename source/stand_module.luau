@@ -48,7 +48,7 @@ stand.action.default_summon = function(p_id: boolean, ch: Model, stand: Model)
 
 	if  os.clock() - last_summon <= summon_cd then return end
 
-	summon_cd_list[p_id] = os.clock()
+	summon_cd_list[p_id] = os.clock() :: number
 
 	local find_stand = stands_folder:FindFirstChild(stand) :: Model
 
