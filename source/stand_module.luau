@@ -1,30 +1,30 @@
 --!nonstrict
 
-local ss: ServerStorage = game:GetService("ServerStorage")
-local ts: TweenService = game:GetService("TweenService")
-local ps: Players = game:GetService("Players")
-local sss: ServerScriptService = game:GetService("ServerScriptService")
+local ss = game:GetService("ServerStorage") :: ServerStorage
+local ts = game:GetService("TweenService") :: TweenService
+local ps = game:GetService("Players") :: Players
+local sss = game:GetService("ServerScriptService") :: ServerScriptService
 
-local modules_folder: Folder = sss:WaitForChild("modules")
-local hb: ModuleScript = require(modules_folder:WaitForChild("hb"))
+local modules_folder = sss:WaitForChild("modules") :: Folder
+local hb = require(modules_folder:WaitForChild("hb")) :: any
 
-local tinfo_summon: TweenInfo = TweenInfo.new(2)
-local tinfo_barrage: TweenInfo = TweenInfo.new(1)
+local tinfo_summon = TweenInfo.new(2) :: TweenInfo
+local tinfo_barrage = TweenInfo.new(1) :: TweenInfo
 
-local stands_folder: Folder = ss:WaitForChild("stands")
+local stands_folder = ss:WaitForChild("stands") :: Folder
 
 local summon_cd_list = {}
-local summon_cd: number = 5
+local summon_cd = 5 :: number
 
 local barrage_cd_list = {}
-local barrage_cd: number = 5
+local barrage_cd = 5 :: number
 
 local fist_cd_list = {}
-local fist_cd: number = .1
+local fist_cd = .1 :: number
 
 local ts_cd_list = {}
-local ts_cd: number = 10
-local ts_t: number = 5
+local ts_cd = 10 :: number
+local ts_t = 5 :: number
 
 local movement_save = {}
 
@@ -33,7 +33,7 @@ local stand = {}
 export type default_type = (boolean, Model) -> ()
 
 export type action = {
-	
+
 	default_summon: (boolean, Model, Model?) -> (),
 	default_unsummon: default_type,
 	default_barrage: default_type,
@@ -50,16 +50,16 @@ stand.action.default_summon = function(p_id: boolean, ch: Model, stand: Model)
 
 	summon_cd_list[p_id] = os.clock()
 
-	local find_stand: Model = stands_folder:FindFirstChild(stand)
+	local find_stand = stands_folder:FindFirstChild(stand) :: Model
 
 	if not find_stand then return end
 
-	local stand_folder: Folder = ch:WaitForChild(stand)
+	local stand_folder = ch:WaitForChild(stand) :: Folder
 
-	local stand: Model = workspace:WaitForChild(p_id .. "_stand")
+	local stand = workspace:WaitForChild(p_id .. "_stand") :: Model
 
-	local hrp: BasePart = ch:WaitForChild("HumanoidRootPart")
-	local stand_hrp: BasePart = stand:WaitForChild("HumanoidRootPart")
+	local hrp = ch:WaitForChild("HumanoidRootPart") :: BasePart
+	local stand_hrp = stand:WaitForChild("HumanoidRootPart") :: BasePart
 
 	local weld: Weld
 
@@ -79,68 +79,68 @@ stand.action.default_summon = function(p_id: boolean, ch: Model, stand: Model)
 
 	stand_hrp.Anchored = false
 
-	local summon_tw: Tween = ts:Create(weld, tinfo_summon, {C1 = CFrame.new(-1.5, -1, -2.5)})
+	local summon_tw = ts:Create(weld, tinfo_summon, {C1 = CFrame.new(-1.5, -1, -2.5)}) :: Tween
 
 	summon_tw:Play()
 end
 
 stand.action.default_unsummon = function(p_id:number, ch:Model)
 
-	local hrp: BasePart = ch:WaitForChild("HumanoidRootPart")
+	local hrp = ch:WaitForChild("HumanoidRootPart") :: BasePart
 
-	local weld: Weld = hrp:WaitForChild("stand_weld")
+	local weld = hrp:WaitForChild("stand_weld") :: Weld
 
-	local unsummon_tw: Tween = ts:Create(weld, tinfo_summon, {C1 = CFrame.new(0, 0, 0)})
+	local unsummon_tw = ts:Create(weld, tinfo_summon, {C1 = CFrame.new(0, 0, 0)}) :: Tween
 
 	unsummon_tw:Play()
 	unsummon_tw.Completed:Wait()
 
-	local stand: Model = workspace:WaitForChild(p_id .. "_stand")
+	local stand = workspace:WaitForChild(p_id .. "_stand") :: Model
 end
 
 stand.action.default_barrage = function(p_id:number, ch:Model)
 
-	local last_barrage: number = barrage_cd_list[p_id] or 0
+	local last_barrage:number = barrage_cd_list[p_id] or 0
 
 	if  os.clock() - last_barrage <= barrage_cd then return end
 
-	barrage_cd_list[p_id] = os.clock()
+	barrage_cd_list[p_id] = os.clock() :: number
 
-	local hrp: BasePart = ch:WaitForChild("HumanoidRootPart")
+	local hrp = ch:WaitForChild("HumanoidRootPart") :: BasePart
 
-	local weld: Weld = hrp:WaitForChild("stand_weld")
+	local weld = hrp:WaitForChild("stand_weld") :: Weld
 
-	local barrage_tw: Tween = ts:Create(weld, tinfo_barrage, {C1 = CFrame.new(0, -1, 3)})
+	local barrage_tw = ts:Create(weld, tinfo_barrage, {C1 = CFrame.new(0, -1, 3)}) :: Tween
 
 	barrage_tw:Play()
 
-	local params: RaycastParams = RaycastParams.new()
+	local params = RaycastParams.new() :: RaycastParams
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = {ch}
 
-	local stand: Model = workspace:WaitForChild(p_id .. "_stand")
+	local stand = workspace:WaitForChild(p_id .. "_stand") :: Model
 
-	local stand_hb: Folder = stand:WaitForChild("hitboxes")
+	local stand_hb = stand:WaitForChild("hitboxes") :: Attachment
 
-	local hb = hb.new(stand_hb, params)
+	local hb = hb.new(stand_hb, params) :: any
 
 	hb:HitStart():OnUpdate(function()
 
 		if not hb.RaycastResult then return end
 
-		local last_fist: number = fist_cd_list[p_id] or 0
+		local last_fist:number = fist_cd_list[p_id] or 0
 
 		if  os.clock() - last_fist <= fist_cd then return end
 
-		fist_cd_list[p_id] = os.clock()
+		fist_cd_list[p_id] = os.clock() :: number
 
-		local hit_part: BasePart = hb.RaycastResult.Instance
+		local hit_part = hb.RaycastResult.Instance :: Part
 
-		local find_hmd: Humanoid = hit_part.Parent:FindFirstChild("Humanoid")
+		local find_hmd = hit_part.Parent:FindFirstChild("Humanoid") :: Humanoid
 
 		if find_hmd then
 
-			local target_hmd: Humanoid = find_hmd
+			local target_hmd = find_hmd :: Humanoid
 
 			target_hmd:TakeDamage(10)
 		end
@@ -150,7 +150,7 @@ stand.action.default_barrage = function(p_id:number, ch:Model)
 
 		hb:Destroy()
 
-		local deault_tw: Tween = ts:Create(weld, tinfo_barrage, {C1 = CFrame.new(-1.5, -1, -2.5)})
+		local deault_tw = ts:Create(weld, tinfo_barrage, {C1 = CFrame.new(-1.5, -1, -2.5)}) :: Tween
 
 		deault_tw:Play()
 	end)
@@ -158,47 +158,7 @@ end
 
 stand.action.default_ts = function(ts_user: Player, ch:Model)
 
-	local ts_user_id: number = ts_user.UserId
-
-	local last_ts: number = ts_cd_list[ts_user_id .. "_ts"] or 0
-
-	if os.clock() - last_ts <= 3 then return end
-
-	local last_ts: number = os.clock()
-
-	for _, p: Player in pairs(ps:GetChildren()) do
-
-		if p == ts_user then continue end
-
-		local ch: Model = p.Character or p.CharacterAdded:Wait()
-
-		local hrp: BasePart = ch:WaitForChild("HumanoidRootPart")
-		local hmd: Humanoid = ch:WaitForChild("Humanoid")
-
-		local p_id: number = p.UserId
-
-		movement_save[p_id .. "_ws"] = hmd.WalkSpeed
-
-		hmd.WalkSpeed = 0
-		hrp.Anchored = true
-	end
-
-	--task.wait(ts_t) cd
-
-	for _, p: Player in pairs(ps:GetChildren()) do
-
-		if p == ts_user then continue end
-
-		local ch: Model = p.Character or p.CharacterAdded:Wait()
-
-		local hrp: BasePart = ch:WaitForChild("HumanoidRootPart")
-		local hmd: Humanoid = ch:WaitForChild("Humanoid")
-
-		local p_id: number = p.UserId
-
-		hmd.WalkSpeed =  movement_save[p_id .. "_ws"]
-		hrp.Anchored = false
-	end
+--didnt complete
 end
 
 return stand
