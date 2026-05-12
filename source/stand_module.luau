@@ -30,11 +30,11 @@ local movement_save = {}
 
 local stand = {}
 
-export type default_type = (boolean, Model) -> ()
+export type default_type = (number, Model) -> ()
 
 export type action = {
 
-	default_summon: (boolean, Model, Model?) -> (),
+	default_summon: (number, Model, string) -> (),
 	default_unsummon: default_type,
 	default_barrage: default_type,
 	default_ts: (Player, Model) -> ()
@@ -42,13 +42,13 @@ export type action = {
 
 stand.action = {} :: action
 
-stand.action.default_summon = function(p_id: boolean, ch: Model, stand: Model)
+stand.action.default_summon = function(p_id: number, ch: Model, stand: string)
 
 	local last_summon: number = summon_cd_list[p_id] or 0
 
 	if  os.clock() - last_summon <= summon_cd then return end
 
-	summon_cd_list[p_id] = os.clock() :: number
+	summon_cd_list[p_id] = os.clock()
 
 	local find_stand = stands_folder:FindFirstChild(stand) :: Model
 
@@ -61,7 +61,7 @@ stand.action.default_summon = function(p_id: boolean, ch: Model, stand: Model)
 	local hrp = ch:WaitForChild("HumanoidRootPart") :: BasePart
 	local stand_hrp = stand:WaitForChild("HumanoidRootPart") :: BasePart
 
-	local weld: Weld
+	local weld: Instance
 
 	if hrp:FindFirstChild("stand_weld") then
 
@@ -84,7 +84,7 @@ stand.action.default_summon = function(p_id: boolean, ch: Model, stand: Model)
 	summon_tw:Play()
 end
 
-stand.action.default_unsummon = function(p_id:number, ch:Model)
+stand.action.default_unsummon = function(p_id: number, ch: Model)
 
 	local hrp = ch:WaitForChild("HumanoidRootPart") :: BasePart
 
@@ -98,7 +98,7 @@ stand.action.default_unsummon = function(p_id:number, ch:Model)
 	local stand = workspace:WaitForChild(p_id .. "_stand") :: Model
 end
 
-stand.action.default_barrage = function(p_id:number, ch:Model)
+stand.action.default_barrage = function(p_id: number, ch: Model)
 
 	local last_barrage:number = barrage_cd_list[p_id] or 0
 
@@ -134,7 +134,7 @@ stand.action.default_barrage = function(p_id:number, ch:Model)
 
 		fist_cd_list[p_id] = os.clock() :: number
 
-		local hit_part = hb.RaycastResult.Instance :: Part
+		local hit_part = hb.RaycastResult.Instance :: any
 
 		local find_hmd = hit_part.Parent:FindFirstChild("Humanoid") :: Humanoid
 
